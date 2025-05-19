@@ -1,23 +1,27 @@
 const express=require('express');
 const {Client}=require('pg');
 const cors=require('cors');
-const app=express();
-const PORT=3000;
-app.use(cors());
-app.use(express.json()); 
+require('dotenv').config(); // ✅ load .env variables
 
-const client=new Client({
-    host:'localhost',
-    port:5432,
-    user:'postgres',
-    password:'1214',
-    database:'postgres',
-    ssl:false
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// ✅ PostgreSQL Client Setup using env
+const client = new Client({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: false } : false
 });
 
 client.connect()
-    .then(()=>console.log('Connected'))
-    .catch(err=>console.error('error',err.stack));
+    .then(() => console.log('Connected to PostgreSQL'))
+    .catch(err => console.error('Connection error', err.stack));
 
 //GET products
 app.get('/products', async (req, res) => {
